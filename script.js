@@ -91,12 +91,27 @@ const phoneInput = document.getElementById('phone');
 const nameError = document.getElementById('nameError');
 const phoneError = document.getElementById('phoneError');
 
-// Sponsors form logic
+// Sponsors form logic - Enhanced with all required fields
 const sponsorsForm = document.getElementById('sponsorsForm');
-const emailSubjectInput = document.getElementById('emailSubject');
-const messageInput = document.getElementById('message');
-const emailSubjectError = document.getElementById('emailSubjectError');
-const messageError = document.getElementById('messageError');
+
+// Form inputs
+const sponsorNameInput = document.getElementById('sponsorName');
+const sponsorEmailInput = document.getElementById('sponsorEmail');
+const sponsorCompanyInput = document.getElementById('sponsorCompany');
+const sponsorPhoneInput = document.getElementById('sponsorPhone');
+const sponsorTypeInput = document.getElementById('sponsorType');
+const sponsorMessageInput = document.getElementById('sponsorMessage');
+
+// Error elements
+const sponsorNameError = document.getElementById('sponsorNameError');
+const sponsorEmailError = document.getElementById('sponsorEmailError');
+const sponsorCompanyError = document.getElementById('sponsorCompanyError');
+const sponsorPhoneError = document.getElementById('sponsorPhoneError');
+const sponsorTypeError = document.getElementById('sponsorTypeError');
+const sponsorMessageError = document.getElementById('sponsorMessageError');
+
+// Success message
+const formSuccess = document.getElementById('formSuccess');
 
 function isValidPhoneInternational(value) {
   // Accepts +<countrycode><digits> with optional spaces
@@ -118,14 +133,55 @@ function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-function buildSponsorsEmailLink(emailSubject, message) {
-  const organizerEmail = 'iyanrimada@gmail.com'; // Email de prueba
-  const subject = emailSubject;
-  const body = message;
+function buildSponsorsEmailLink(name, email, company, phone, sponsorType, message) {
+  const organizerEmail = 'info@asturoverland.com';
+  const subject = `Solicitud de Patrocinio - ${sponsorType} - ${company}`;
+  const body = `Hola,
+
+Me pongo en contacto para solicitar información sobre el patrocinio ${sponsorType} para ASTUR OVERLAND 2026.
+
+Datos de contacto:
+- Nombre: ${name}
+- Empresa/Marca: ${company}
+- Email: ${email}
+- Teléfono: ${phone}
+- Tipo de patrocinio: ${sponsorType}
+
+Mensaje:
+${message}
+
+Quedo a la espera de su respuesta.
+
+Saludos cordiales,
+${name}`;
 
   const encodedSubject = encodeURIComponent(subject);
   const encodedBody = encodeURIComponent(body);
   return `mailto:${organizerEmail}?subject=${encodedSubject}&body=${encodedBody}`;
+}
+
+// Real-time validation with visual feedback
+function validateField(input, errorElement, validator, errorMessage) {
+  const value = input.value.trim();
+  const isValid = validator(value);
+  
+  if (value === '') {
+    input.classList.remove('valid', 'invalid');
+    errorElement.textContent = '';
+    return false;
+  }
+  
+  if (isValid) {
+    input.classList.add('valid');
+    input.classList.remove('invalid');
+    errorElement.textContent = '';
+    return true;
+  } else {
+    input.classList.add('invalid');
+    input.classList.remove('valid');
+    errorElement.textContent = errorMessage;
+    return false;
+  }
 }
 
 if (form) {
@@ -156,32 +212,189 @@ if (form) {
   });
 }
 
-// Sponsors form handling
+// Sponsors form handling with enhanced validation
 if (sponsorsForm) {
+  // Real-time validation on input
+  if (sponsorNameInput) {
+    sponsorNameInput.addEventListener('blur', () => {
+      validateField(
+        sponsorNameInput,
+        sponsorNameError,
+        (val) => val.length >= 2,
+        'El nombre debe tener al menos 2 caracteres.'
+      );
+    });
+  }
+  
+  if (sponsorEmailInput) {
+    sponsorEmailInput.addEventListener('blur', () => {
+      validateField(
+        sponsorEmailInput,
+        sponsorEmailError,
+        isValidEmail,
+        'Introduce un correo electrónico válido.'
+      );
+    });
+  }
+  
+  if (sponsorCompanyInput) {
+    sponsorCompanyInput.addEventListener('blur', () => {
+      validateField(
+        sponsorCompanyInput,
+        sponsorCompanyError,
+        (val) => val.length >= 2,
+        'El nombre de la empresa debe tener al menos 2 caracteres.'
+      );
+    });
+  }
+  
+  if (sponsorPhoneInput) {
+    sponsorPhoneInput.addEventListener('blur', () => {
+      validateField(
+        sponsorPhoneInput,
+        sponsorPhoneError,
+        isValidPhoneInternational,
+        'Introduce un teléfono válido con prefijo internacional. Ej: +34 612 345 678'
+      );
+    });
+  }
+  
+  if (sponsorTypeInput) {
+    sponsorTypeInput.addEventListener('change', () => {
+      validateField(
+        sponsorTypeInput,
+        sponsorTypeError,
+        (val) => val !== '',
+        'Selecciona un tipo de patrocinio.'
+      );
+    });
+  }
+  
+  if (sponsorMessageInput) {
+    sponsorMessageInput.addEventListener('blur', () => {
+      validateField(
+        sponsorMessageInput,
+        sponsorMessageError,
+        (val) => val.length >= 10,
+        'El mensaje debe tener al menos 10 caracteres.'
+      );
+    });
+  }
+  
+  // Form submission
   sponsorsForm.addEventListener('submit', e => {
     e.preventDefault();
-    const emailSubject = emailSubjectInput.value;
-    const message = messageInput.value.trim();
-
+    
+    // Hide success message
+    if (formSuccess) formSuccess.style.display = 'none';
+    
+    // Get values
+    const name = sponsorNameInput ? sponsorNameInput.value.trim() : '';
+    const email = sponsorEmailInput ? sponsorEmailInput.value.trim() : '';
+    const company = sponsorCompanyInput ? sponsorCompanyInput.value.trim() : '';
+    const phone = sponsorPhoneInput ? sponsorPhoneInput.value.trim() : '';
+    const sponsorType = sponsorTypeInput ? sponsorTypeInput.value : '';
+    const message = sponsorMessageInput ? sponsorMessageInput.value.trim() : '';
+    
+    // Reset errors
+    if (sponsorNameError) sponsorNameError.textContent = '';
+    if (sponsorEmailError) sponsorEmailError.textContent = '';
+    if (sponsorCompanyError) sponsorCompanyError.textContent = '';
+    if (sponsorPhoneError) sponsorPhoneError.textContent = '';
+    if (sponsorTypeError) sponsorTypeError.textContent = '';
+    if (sponsorMessageError) sponsorMessageError.textContent = '';
+    
+    // Remove all validation classes
+    [sponsorNameInput, sponsorEmailInput, sponsorCompanyInput, sponsorPhoneInput, sponsorTypeInput, sponsorMessageInput].forEach(input => {
+      if (input) {
+        input.classList.remove('valid', 'invalid');
+      }
+    });
+    
     let valid = true;
-    emailSubjectError.textContent = '';
-    messageError.textContent = '';
-
-    if (!emailSubject) {
-      emailSubjectError.textContent = 'Selecciona un asunto para el correo.';
+    
+    // Validate name
+    if (!name || name.length < 2) {
+      if (sponsorNameError) sponsorNameError.textContent = 'El nombre completo es obligatorio (mínimo 2 caracteres).';
+      if (sponsorNameInput) sponsorNameInput.classList.add('invalid');
       valid = false;
+    } else {
+      if (sponsorNameInput) sponsorNameInput.classList.add('valid');
     }
-
-    if (message.length < 10) {
-      messageError.textContent = 'Escribe un mensaje de al menos 10 caracteres.';
+    
+    // Validate email
+    if (!email || !isValidEmail(email)) {
+      if (sponsorEmailError) sponsorEmailError.textContent = 'Introduce un correo electrónico válido.';
+      if (sponsorEmailInput) sponsorEmailInput.classList.add('invalid');
       valid = false;
+    } else {
+      if (sponsorEmailInput) sponsorEmailInput.classList.add('valid');
     }
-
-    if (!valid) return;
-
-    // Build email link with form data
-    const link = buildSponsorsEmailLink(emailSubject, message);
-    window.location.href = link;
+    
+    // Validate company
+    if (!company || company.length < 2) {
+      if (sponsorCompanyError) sponsorCompanyError.textContent = 'El nombre de la empresa es obligatorio (mínimo 2 caracteres).';
+      if (sponsorCompanyInput) sponsorCompanyInput.classList.add('invalid');
+      valid = false;
+    } else {
+      if (sponsorCompanyInput) sponsorCompanyInput.classList.add('valid');
+    }
+    
+    // Validate phone
+    if (!phone || !isValidPhoneInternational(phone)) {
+      if (sponsorPhoneError) sponsorPhoneError.textContent = 'Introduce un teléfono válido con prefijo internacional. Ej: +34 612 345 678';
+      if (sponsorPhoneInput) sponsorPhoneInput.classList.add('invalid');
+      valid = false;
+    } else {
+      if (sponsorPhoneInput) sponsorPhoneInput.classList.add('valid');
+    }
+    
+    // Validate sponsor type
+    if (!sponsorType) {
+      if (sponsorTypeError) sponsorTypeError.textContent = 'Selecciona un tipo de patrocinio.';
+      if (sponsorTypeInput) sponsorTypeInput.classList.add('invalid');
+      valid = false;
+    } else {
+      if (sponsorTypeInput) sponsorTypeInput.classList.add('valid');
+    }
+    
+    // Validate message
+    if (!message || message.length < 10) {
+      if (sponsorMessageError) sponsorMessageError.textContent = 'El mensaje es obligatorio (mínimo 10 caracteres).';
+      if (sponsorMessageInput) sponsorMessageInput.classList.add('invalid');
+      valid = false;
+    } else {
+      if (sponsorMessageInput) sponsorMessageInput.classList.add('valid');
+    }
+    
+    if (!valid) {
+      // Scroll to first error
+      const firstError = sponsorsForm.querySelector('.invalid');
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        firstError.focus();
+      }
+      return;
+    }
+    
+    // Build email link with all form data
+    const link = buildSponsorsEmailLink(name, email, company, phone, sponsorType, message);
+    
+    // Show success message
+    if (formSuccess) {
+      formSuccess.style.display = 'flex';
+      formSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      
+      // Re-initialize icons
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+    }
+    
+    // Open email client after a short delay
+    setTimeout(() => {
+      window.location.href = link;
+    }, 500);
   });
 }
 
@@ -914,10 +1127,8 @@ class ActiveNavigation {
   init() {
     if (!this.navLinks.length) return;
     
-    // Initialize active state with delay to ensure DOM is ready
-    setTimeout(() => {
-      this.setActiveLink('info');
-    }, 100);
+    // No inicializar estado activo - todas las secciones empiezan sin marca
+    // El estado activo se establecerá automáticamente cuando el usuario haga scroll
     
     // Setup intersection observer for precise section detection
     this.setupIntersectionObserver();
@@ -957,12 +1168,10 @@ class ActiveNavigation {
       
       // If we found a visible section, activate it
       if (mostVisibleSection && maxVisibility > 0.1) {
-        // Map reviews section to comunidad for consistency
-        const mappedSectionId = mostVisibleSection === 'reviews' ? 'comunidad' : mostVisibleSection;
-        
+        // The navbar uses 'reviews' as data-section, so keep it as 'reviews'
         // Only update if it's actually a different section
-        if (this.currentActiveSection !== mappedSectionId) {
-          this.setActiveLink(mappedSectionId);
+        if (this.currentActiveSection !== mostVisibleSection) {
+          this.setActiveLink(mostVisibleSection);
         }
       }
     }, options);
@@ -1681,16 +1890,16 @@ function initCookieBanner() {
   const banner = document.getElementById('cookieBanner');
   if (!banner) return;
 
-  const consent = localStorage.getItem('cookie_consent_v1');
-  if (!consent) {
-    banner.style.display = 'block';
-  }
+  // Mostrar el banner siempre al cargar la página
+  banner.style.display = 'block';
 
   const accept = document.getElementById('acceptCookies');
   const configure = document.getElementById('configureCookies');
 
   if (accept) accept.addEventListener('click', () => {
+    // Guardar el consentimiento pero seguir mostrando el banner en la próxima carga
     localStorage.setItem('cookie_consent_v1', JSON.stringify({ necessary: true, analytics: true, marketing: true, date: Date.now() }));
+    // Ocultar temporalmente el banner (se mostrará de nuevo al recargar la página)
     banner.style.display = 'none';
   });
 
@@ -1744,8 +1953,8 @@ function initHeroAnimations() {
 function initCountdown() {
   console.log('🚀 Inicializando temporizador...');
   
-  // Fecha del evento: 17 de julio de 2026, 10:00 AM (GMT+2)
-  const eventDate = new Date('2026-07-17T10:00:00+02:00').getTime();
+  // Fecha del evento: 10 de julio de 2026, 10:00 AM (GMT+2)
+  const eventDate = new Date('2026-07-10T10:00:00+02:00').getTime();
   console.log('📅 Fecha del evento:', new Date(eventDate));
   console.log('⏰ Fecha actual:', new Date());
   
