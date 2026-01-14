@@ -314,7 +314,7 @@ p {
 
 .site-header .container {
   display: grid; 
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center; 
   height: 80px;
   position: relative;
@@ -373,7 +373,7 @@ p {
   backdrop-filter: blur(15px);
   border: 1px solid var(--border-light);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  justify-self: end;
+  justify-self: center;
   /* Subtle glow effect */
   box-shadow: 
     0 4px 20px var(--shadow-light),
@@ -587,10 +587,22 @@ p {
     align-items: center;
   }
   
+  /* En móvil: navbar oculto, logo a la izquierda, hamburguesa a la derecha */
+  .site-nav {
+    grid-column: unset;
+    justify-self: unset;
+  }
+  
   .header-left {
     display: flex;
     align-items: center;
     justify-self: start;
+    grid-column: 1;
+  }
+  
+  .mobile-menu-toggle {
+    grid-column: 3;
+    justify-self: end;
   }
   
   .header-left .brand {

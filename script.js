@@ -1238,13 +1238,8 @@ class ActiveNavigation {
         requestAnimationFrame(() => {
           const scrollY = window.scrollY;
           
-          // Special handling for top of page
-          if (scrollY < 100) {
-            // If we're near the top, activate the first section (info)
-            if (this.currentActiveSection !== 'info') {
-              this.setActiveLink('info');
-            }
-          }
+          // No activar ninguna sección automáticamente al estar en el top
+          // El estado activo se establecerá solo cuando el usuario haga scroll y entre en una sección
           
           // Clear any existing timeout
           if (this.scrollTimeout) {
